@@ -3,30 +3,29 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/uploads");
+    cb(null, "uploads");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix =
-      Date.now() + "-" + Math.round(Math.random() * 1e9) + file.originalname;
+    const fileName = `${file.fieldname}-${Date.now()}-${File.originalname}`;
+    //   Date.now() + "-" + Math.round(Math.random() * 1e9) + file.originalname;
     cb(null, file.fieldname + "-" + uniqueSuffix);
   },
 });
 
-const upload = multer({ storage: "/uploads" });
+function fileFilter(req, file, cb) {
+  const allowed = ["image/jpeg"];
 
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, '/uploads')
-//     },
-//     filename: function (req, file, cb) {
-//       const uniqueSuffix = ".jpg")
-//       cb(null, file.fieldname + '-' + uniqueSuffix)}
-//   })
+  if (!allowed.includes(file.mimetype)) {
+    cb(new Error("Please make sure to add a file with a .jpeg or .jpg extension");
+  } else {
+    cb(null, true);
+  }
+}
 
-// const upload = multer({ storage: "/uploads" });
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
